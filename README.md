@@ -100,4 +100,4 @@ final class LoggingMiddleware
 
 Middleware runs in the order services are tagged.
 
-Treat the command as immutable. Middleware should pass the command it received to `$next`. The handler always receives the command that was originally dispatched, even if a middleware passes a different object to `$next`.
+Middleware should pass the command it received to `$next`, treating it as immutable. Whatever is passed to `$next` is what the next middleware and, finally, the handler receive.

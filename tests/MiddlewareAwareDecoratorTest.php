@@ -28,7 +28,7 @@ final class MiddlewareAwareDecoratorTest extends TestCase
 
         $middleware = function (object $cmd, callable $next) use (&$called): mixed {
             $called = true;
-            return $next();
+            return $next($cmd);
         };
 
         $inner = $this->createMock(DispatcherInterface::class);
