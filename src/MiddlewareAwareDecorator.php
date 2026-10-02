@@ -13,9 +13,12 @@ final class MiddlewareAwareDecorator
     {
         assert($inner instanceof DispatcherInterface);
 
+        /** @var TagRegistryInterface $tags */
+        $tags = $container->get(TagRegistryInterface::class);
+
         return new MiddlewareAwareDispatcher(
             $inner,
-            $this->getMiddleware($container->get(TagRegistryInterface::class))
+            $this->getMiddleware($tags)
         );
     }
 
@@ -25,7 +28,7 @@ final class MiddlewareAwareDecorator
     private function getMiddleware(TagRegistryInterface $tags): array
     {
         /** @var callable[] $middleware */
-        $middleware = $tags->getTagged('bus.middleware');
+        $middleware = $tags->getTagged(BusOption::MiddlewareTag->value);
 
         return $middleware;
     }

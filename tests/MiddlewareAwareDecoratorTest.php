@@ -65,15 +65,8 @@ final class MiddlewareAwareDecoratorTest extends TestCase
      */
     private function containerWithTags(array $tags): ContainerInterface
     {
-        $registry = new class ($tags) implements TagRegistryInterface {
-            /** @param array<string, callable[]> $tags */
-            public function __construct(private readonly array $tags) {}
-
-            public function getTagged(string $tag): array
-            {
-                return $this->tags[$tag] ?? [];
-            }
-        };
+        $registry = $this->createStub(TagRegistryInterface::class);
+        $registry->method('getTagged')->willReturnCallback(fn(string $tag): array => $tags[$tag] ?? []);
 
         $container = $this->createMock(ContainerInterface::class);
         $container->method('get')->with(TagRegistryInterface::class)->willReturn($registry);

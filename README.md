@@ -2,6 +2,12 @@
 
 Meritum module for bootstrapping [`georgeff/bus`](https://github.com/MikeGeorgeff/bus) into the kernel ecosystem.
 
+## Requirements
+
+- PHP 8.4+
+- [`georgeff/kernel`](https://github.com/MikeGeorgeff/kernel) ^2.0
+- [`georgeff/bus`](https://github.com/MikeGeorgeff/bus) ^1.0
+
 ## Installation
 
 ```bash
@@ -18,7 +24,7 @@ use Meritum\BusModule\BusModule;
 $kernel->addModule(new BusModule());
 ```
 
-The module registers `HandlerLocatorInterface`, `HandlerResolverInterface`, and `DispatcherInterface`. Resolve the dispatcher from the container to dispatch commands:
+The module registers `HandlerLocatorInterface`, `HandlerResolverInterface`, and a shared `DispatcherInterface`. Resolve the dispatcher from the container to dispatch commands:
 
 ```php
 use Georgeff\Bus\DispatcherInterface;
@@ -47,15 +53,29 @@ Handlers are resolved from the container, so register each handler as a service:
 $kernel->define(PlaceOrderCommandHandler::class, fn() => new PlaceOrderCommandHandler());
 ```
 
-## Middleware
+## Replacing the locator or resolver
 
-Tag services with `bus.middleware` to add them to the dispatch pipeline:
+`ClassNameLocator` and `PsrContainerResolver` are registered as fallbacks. To use a different naming convention or resolution strategy, define your own `HandlerLocatorInterface` or `HandlerResolverInterface`, either in your bootstrap or from any module. Your definition replaces the default regardless of module order:
 
 ```php
+use Georgeff\Bus\HandlerLocatorInterface;
+
+$kernel->define(HandlerLocatorInterface::class, fn() => new MyHandlerLocator());
+```
+
+`DispatcherInterface` is not a fallback. Defining it yourself throws `DefinitionException`; use `$kernel->override(DispatcherInterface::class, ...)` if you really mean to replace the dispatcher.
+
+## Middleware
+
+The dispatcher is always wrapped in `MiddlewareAwareDispatcher`. Tag services with `BusOption::MiddlewareTag` (`bus.middleware`) to add them to the dispatch pipeline; with nothing tagged, commands go straight to their handlers:
+
+```php
+use Meritum\BusModule\BusOption;
+
 $kernel->define(
     LoggingMiddleware::class,
     fn(ContainerInterface $c) => new LoggingMiddleware($c->get(LoggerInterface::class)),
-)->tag('bus.middleware');
+)->tag(BusOption::MiddlewareTag->value);
 ```
 
 Middleware receive the command and a `$next` callable. Call `$next($command)` to continue the pipeline:
@@ -76,10 +96,4 @@ final class LoggingMiddleware
 
 Middleware runs in the order services are tagged.
 
-## Options
-
-To bypass the middleware pipeline and use the plain dispatcher:
-
-```php
-$kernel->addModule(new BusModule(useMiddlewareAwareDispatcher: false));
-```
+Treat the command as immutable. Middleware should pass the command it received to `$next`. The handler always receives the command that was originally dispatched, even if a middleware passes a different object to `$next`.
