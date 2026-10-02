@@ -1,5 +1,9 @@
 # meritum/bus-module
 
+[![CI](https://github.com/MeritumIO/bus-module/actions/workflows/ci.yml/badge.svg)](https://github.com/MeritumIO/bus-module/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/MeritumIO/bus-module/badge.svg?branch=main)](https://coveralls.io/github/MeritumIO/bus-module?branch=main)
+[![Packagist Version](https://img.shields.io/packagist/v/meritum/bus-module)](https://packagist.org/packages/meritum/bus-module)
+
 Meritum module for bootstrapping [`georgeff/bus`](https://github.com/MikeGeorgeff/bus) into the kernel ecosystem.
 
 ## Requirements
