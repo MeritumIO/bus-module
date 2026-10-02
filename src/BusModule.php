@@ -9,18 +9,16 @@ use Georgeff\Bus\DispatcherInterface;
 use Georgeff\Bus\HandlerLocatorInterface;
 use Georgeff\Bus\HandlerResolverInterface;
 use Georgeff\Bus\Locator\ClassNameLocator;
-use Georgeff\Kernel\Module\ModuleInterface;
+use Georgeff\Kernel\Contract\ModuleInterface;
 use Georgeff\Bus\Resolver\PsrContainerResolver;
 
 final class BusModule implements ModuleInterface
 {
-    public function __construct(private readonly bool $useMiddlewareAwareDispatcher = true) {}
-
     public function register(KernelInterface $kernel): void
     {
-        $kernel->define(HandlerLocatorInterface::class, fn() => new ClassNameLocator());
+        $kernel->defineFallback(HandlerLocatorInterface::class, fn() => new ClassNameLocator());
 
-        $kernel->define(
+        $kernel->defineFallback(
             HandlerResolverInterface::class,
             fn(ContainerInterface $c) => new PsrContainerResolver($c, $c->get(HandlerLocatorInterface::class))
         );
@@ -30,8 +28,6 @@ final class BusModule implements ModuleInterface
             fn(ContainerInterface $c) => new Dispatcher($c->get(HandlerResolverInterface::class))
         )->share();
 
-        if ($this->useMiddlewareAwareDispatcher) {
-            $kernel->decorate(DispatcherInterface::class, new MiddlewareAwareDecorator());
-        }
+        $kernel->decorate(DispatcherInterface::class, new MiddlewareAwareDecorator());
     }
 }

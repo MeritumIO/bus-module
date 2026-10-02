@@ -13,7 +13,7 @@
   "require": {
     "php": "^8.4",
     "georgeff/bus": "^1.0",
-    "georgeff/kernel": "^1.6"
+    "georgeff/kernel": "^2.0"
   },
   "require-dev": {
     "bnf/phpstan-psr-container": "^1.0",
@@ -35,8 +35,14 @@
     "sort-packages": true
   },
   "scripts": {
-    "test": ["vendor/bin/phpunit"],
-    "analyze": ["vendor/bin/phpstan"],
-    "phpcs": ["vendor/bin/phpcs"]
+    "test": [
+      "vendor/bin/phpunit"
+    ],
+    "analyze": [
+      "vendor/bin/phpstan"
+    ],
+    "phpcs": [
+      "vendor/bin/phpcs"
+    ]
   }
 }
